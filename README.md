@@ -25,7 +25,7 @@ A TypeScript-based REST API built with Express. The project demonstrates user re
 - ✅ Protected routes
 - ✅ Refresh token generation
 - ✅ Refresh token stored in an `HttpOnly` cookie
-- 🚧 Refresh token verification and rotation
+- ✅ Refresh token verification and rotation
 - 🚧 Logout and session revocation
 
 ## Tech Stack

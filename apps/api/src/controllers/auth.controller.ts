@@ -11,8 +11,7 @@ const refreshCookieBaseOptions: CookieOptions={
     httpOnly: true,
     secure: NODE_ENV === 'production', // Csak HTTPS-en keresztül küldjük a sütit, ha production környezetben vagyunk
     sameSite: 'lax',
-    path: '/api/v1/auth',
-    maxAge: REFRESH_TOKEN_TTL_MS, // A süti élettartama 7 nap
+    path: '/api/v1/auth'
 }
 const refreshCookieOptions: CookieOptions = {
     ...refreshCookieBaseOptions,
