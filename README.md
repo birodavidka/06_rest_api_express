@@ -1,159 +1,258 @@
-# Turborepo starter
+# Express REST API with JWT Authentication
 
-This Turborepo starter is maintained by the Turborepo core team.
+A TypeScript-based REST API built with Express. The project demonstrates user registration, password hashing, JWT authentication, protected routes, and refresh-token-based session handling.
 
-## Using this example
+## Features
 
-Run the following command:
+- User registration
+- Password hashing with bcrypt
+- User login
+- Short-lived JWT access tokens
+- Refresh tokens stored in `HttpOnly` cookies
+- Separate secrets for access and refresh tokens
+- Server-side refresh session tracking
+- Protected routes
+- Request logging with Morgan
+- Security headers with Helmet
+- CORS configuration
+- TypeScript support
 
-```sh
-npx create-turbo@latest
+## Authentication Status
+
+- ✅ Registration
+- ✅ Login
+- ✅ Access token generation
+- ✅ Protected routes
+- ✅ Refresh token generation
+- ✅ Refresh token stored in an `HttpOnly` cookie
+- 🚧 Refresh token verification and rotation
+- 🚧 Logout and session revocation
+
+## Tech Stack
+
+- Node.js
+- Express 5
+- TypeScript
+- JSON Web Token
+- bcrypt
+- cookie-parser
+- Helmet
+- CORS
+- Morgan
+- Turborepo
+
+## Project Structure
+
+```text
+apps/api/
+├── src/
+│   ├── config/
+│   │   ├── cors.ts
+│   │   └── env.ts
+│   ├── controllers/
+│   │   └── auth.controller.ts
+│   ├── data/
+│   │   └── index.ts
+│   ├── middlewares/
+│   │   └── auth.middleware.ts
+│   ├── routes/
+│   │   └── auth.route.ts
+│   ├── app.ts
+│   ├── index.ts
+│   └── server.ts
+├── package.json
+└── tsconfig.json
 ```
 
-## What's inside?
+## Requirements
 
-This Turborepo includes the following packages/apps:
+- Node.js 24 or newer
+- npm 11 or newer
 
-### Apps and Packages
+## Installation
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `@next/eslint-plugin-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+Clone the repository and install the dependencies:
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo build
+```bash
+git clone <repository-url>
+cd 06_rest_api_express
+npm install
 ```
 
-Without global `turbo`, use your package manager:
+## Environment Variables
 
-```sh
-cd my-turborepo
-npx turbo build
-npm exec turbo build
-npm exec turbo build
+Create this file:
+
+```text
+apps/api/.env.development.local
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+Add the following variables:
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo build --filter=docs
+```env
+PORT=3001
+JWT_ACCESS_SECRET=your-long-random-access-secret
+JWT_REFRESH_SECRET=your-long-random-refresh-secret
 ```
 
-Without global `turbo`:
+Generate secure random secrets with:
 
-```sh
-npx turbo build --filter=docs
-npm exec turbo build --filter=docs
-npm exec turbo build --filter=docs
+```bash
+openssl rand -base64 48
 ```
 
-### Develop
+Run the command twice and use a different value for each secret.
 
-To develop all apps and packages, run the following command:
+Never commit environment files or real secrets to version control.
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+## Development
 
-```sh
-cd my-turborepo
-turbo dev
+Start the API in development mode:
+
+```bash
+npm run dev --workspace=api
 ```
 
-Without global `turbo`, use your package manager:
+The server will be available at:
 
-```sh
-cd my-turborepo
-npx turbo dev
-npm exec turbo dev
-npm exec turbo dev
+```text
+http://localhost:3001
 ```
 
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+## Build
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+Compile the TypeScript source:
 
-```sh
-turbo dev --filter=web
+```bash
+npm run build --workspace=api
 ```
 
-Without global `turbo`:
+Run the compiled application:
 
-```sh
-npx turbo dev --filter=web
-npm exec turbo dev --filter=web
-npm exec turbo dev --filter=web
+```bash
+npm run start --workspace=api
 ```
 
-### Remote Caching
+## API Endpoints
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+| Method | Endpoint | Authentication | Description |
+|---|---|---|---|
+| `POST` | `/api/v1/auth/register` | No | Register a new user |
+| `POST` | `/api/v1/auth/login` | No | Log in and receive an access token |
+| `POST` | `/api/v1/auth/refresh` | Refresh cookie | Issue a new token pair |
+| `GET` | `/protected-data` | Bearer token | Access protected data |
 
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
+## Register
 
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
+### Request
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
+```http
+POST /api/v1/auth/register
+Content-Type: application/json
 ```
 
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo login
-npm exec turbo login
-npm exec turbo login
+```json
+{
+  "username": "example-user",
+  "password": "secure-password"
+}
 ```
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+### Response
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
+```json
+{
+  "message": "Sikeres regisztráció!"
+}
 ```
 
-Without global `turbo`:
+## Login
 
-```sh
-npx turbo link
-npm exec turbo link
-npm exec turbo link
+### Request
+
+```http
+POST /api/v1/auth/login
+Content-Type: application/json
 ```
 
-## Useful Links
+```json
+{
+  "username": "example-user",
+  "password": "secure-password"
+}
+```
 
-Learn more about the power of Turborepo:
+### Response
 
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+The access token is returned in the response body:
+
+```json
+{
+  "message": "Sikeres bejelentkezés",
+  "accessToken": "<jwt-access-token>"
+}
+```
+
+A seven-day refresh token is also issued as an `HttpOnly` cookie.
+
+## Protected Route
+
+Send the access token in the `Authorization` header:
+
+```http
+GET /protected-data
+Authorization: Bearer <jwt-access-token>
+```
+
+Example response:
+
+```json
+{
+  "message": "Üdv example-user, sikeresen elérted a védett adatokat!",
+  "data": [1, 2, 3, 4, 5]
+}
+```
+
+## Authentication Flow
+
+1. The user registers with a username and password.
+2. The password is hashed with bcrypt.
+3. After login, the API returns a short-lived access token.
+4. A longer-lived refresh token is stored in an `HttpOnly` cookie.
+5. The access token is sent in the `Authorization` header.
+6. When the access token expires, the refresh endpoint creates a new token pair.
+7. Refresh token rotation invalidates the previously used refresh session.
+
+## Security
+
+- Passwords are never stored as plain text.
+- Access and refresh tokens use different secrets.
+- Refresh tokens are not exposed to browser JavaScript.
+- Refresh cookies use `HttpOnly` and `SameSite=Lax`.
+- Production cookies use the `Secure` attribute.
+- Refresh sessions can be revoked on the server.
+- Helmet adds common HTTP security headers.
+
+## Current Limitations
+
+This project currently uses in-memory storage:
+
+- Users are lost when the server restarts.
+- Refresh sessions are lost when the server restarts.
+- The application is intended for learning and demonstration purposes.
+- A production application should use a database and Redis or another persistent session store.
+
+## Roadmap
+
+- [ ] Complete refresh token rotation
+- [ ] Add logout and session revocation
+- [ ] Add request validation with Zod
+- [ ] Add a persistent database
+- [ ] Store refresh sessions in Redis or a database
+- [ ] Add rate limiting
+- [ ] Add automated tests
+- [ ] Add centralized error handling
+
+## License
+
+This project is licensed under the ISC License.
