@@ -34,5 +34,11 @@ export function createApp() {
     });
   });
 
+  app.get("/health", (_req, res) => {
+  return res.status(200).json({
+    status: "ok",
+    }); 
+  });
+
   return app;
 }

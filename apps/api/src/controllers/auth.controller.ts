@@ -98,7 +98,7 @@ export const login = async (req: express.Request, res: express.Response) => {
         res.cookie(
         "refreshToken",
         newRefreshToken,
-        { ...refreshCookieBaseOptions, path: '/api/v1/auth/refresh' }
+        refreshCookieOptions
         );
 
         return res.json({
