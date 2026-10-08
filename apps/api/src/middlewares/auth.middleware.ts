@@ -1,5 +1,5 @@
 import { NextFunction,Request,Response } from "express";
-import {getJWTSecret} from "../config/env";
+import {getAccessTokenSecret} from "../config/env";
 import jwt from "jsonwebtoken";
 
 
@@ -14,7 +14,7 @@ export const authenticateToken = (req:Request, res: Response, next: NextFunction
     }
 
     // Token ellenőrzése
-jwt.verify(token, getJWTSecret(), (err, decoded) => {
+jwt.verify(token, getAccessTokenSecret(), (err, decoded) => {
     if (
         err ||
         !decoded ||

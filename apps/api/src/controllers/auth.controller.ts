@@ -1,7 +1,7 @@
 import express from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { getJWTSecret } from '../config/env';
+import { getAccessTokenSecret } from '../config/env';
 import { users } from '../data/index';
 
 
@@ -59,13 +59,18 @@ export const login = async (req: express.Request, res: express.Response) => {
         }
 
         // JWT Token generálása (payload, titkos kulcs, lejárati idő)
-        const token = jwt.sign(
-            { username: user.username }, 
-            getJWTSecret(), 
-            { expiresIn: '1h' } // A token 1 óra múlva lejár
-        );
+        const accessToken = jwt.sign({ id: user.id, username: user.username }, getAccessTokenSecret(), { expiresIn: '15m' });
 
-        res.json({ message: 'Sikeres bejelentkezés', token });
+        res.json({ message: 'Sikeres bejelentkezés', accessToken });
+    } catch (error) {
+        res.status(500).json({ message: 'Szerverhiba' });
+    }
+};
+
+export const refreshToken = async (req: express.Request,res: express.Response) => {
+    try {
+        const refreshToken = req.body;
+        console.log('Refresh token endpoint called');
     } catch (error) {
         res.status(500).json({ message: 'Szerverhiba' });
     }
