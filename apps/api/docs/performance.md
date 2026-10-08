@@ -1,21 +1,24 @@
-## Performance
+# Performance Benchmark
 
-Local load testing was performed with Autocannon against the compiled
-production build.
+## Test environment
 
-| Metric | Result |
-|---|---:|
-| Average throughput | 31,252 requests/sec |
-| Total requests | 625,037 |
-| Average latency | 0.02 ms |
-| p99 latency | <1 ms |
-| p99.9 latency | 3 ms |
-| Maximum latency | 27 ms |
+- Date: 2026-10-08
+- Runtime: Node.js 26
+- Environment: local development machine
+- Target: compiled Express API
+- Tool: Autocannon
+- Duration: 20 seconds
+- Endpoint: `GET /protected-data`
+- Concurrent connections: 20
+- Authentication: missing or invalid access token
+- Response status: HTTP 401
 
-> This benchmark measured the unauthorized authentication-rejection path.
-> All requests returned HTTP 401, so the results do not represent successful
-> authenticated requests or production network conditions.
+## Command
 
-![Autocannon benchmark summary](docs/assets/autocannon-summary.png)
-
-[View the detailed benchmark report](docs/performance.md)
+```bash
+npx autocannon \
+  -c 20 \
+  -d 20 \
+  -l \
+  --renderStatusCodes \
+  http://localhost:3001/protected-data
