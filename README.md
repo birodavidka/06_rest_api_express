@@ -361,6 +361,13 @@ The goal of this project is not just creating a CRUD API, but build a backend wh
 - ✅ Refresh token verification and rotation
 - 🚧 Logout and session revocation
 
+### Dokumentáció
+
+- [Architektúra](/apps/docs/02-architecture.md)
+- [Adatbázis](/apps/docs/03-database.md)
+- [API dokumentáció](/apps/docs/04-api-reference.md)
+- [Auth handling](/apps/docs/05-auth-handling.md)
+
 ## Features
 
 - User login/registration
@@ -584,3 +591,4 @@ Example response:
 - [ ] Add rate limiting
 - [ ] Add automated tests
 - [ ] Add centralized error handling
+
