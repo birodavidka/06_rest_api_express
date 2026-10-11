@@ -1,4 +1,4 @@
-# Express REST API with JWT Authentication
+<!-- # Express REST API with JWT Authentication
 
 A TypeScript-based REST API built with Express. The project demonstrates user registration, password hashing, JWT authentication, protected routes, and refresh-token-based session handling.
 
@@ -93,6 +93,7 @@ Add the following variables:
 PORT=3001
 JWT_ACCESS_SECRET=your-long-random-access-secret
 JWT_REFRESH_SECRET=your-long-random-refresh-secret
+DATABASE_URL=postgresql://app_user:local_password@localhost:5432/rest_api
 ```
 
 Generate secure random secrets with:
@@ -104,6 +105,57 @@ openssl rand -base64 48
 Run the command twice and use a different value for each secret.
 
 Never commit environment files or real secrets to version control.
+
+## PostgreSQL database
+
+Start PostgreSQL in Docker:
+
+```bash
+docker compose up -d
+```
+
+For a new database volume, Docker automatically runs these files in order:
+
+```text
+db/init/001_schema.sql
+db/init/002_seed.sql
+```
+
+The seed contains example users, assets, tickets, and comments. Every example
+user has the following development-only password:
+
+```text
+Password123!
+```
+
+If the PostgreSQL volume already existed before the initialization files were
+added, load them manually:
+
+```bash
+docker compose exec -T postgres psql -X -U app_user -d rest_api \
+  -v ON_ERROR_STOP=1 -f /docker-entrypoint-initdb.d/001_schema.sql
+
+docker compose exec -T postgres psql -X -U app_user -d rest_api \
+  -v ON_ERROR_STOP=1 -f /docker-entrypoint-initdb.d/002_seed.sql
+```
+
+The seed file can be run again safely. To inspect the database interactively:
+
+```bash
+docker compose exec postgres psql -U app_user -d rest_api
+```
+
+Useful commands inside `psql`:
+
+```text
+\dt
+SELECT id, name, email, role FROM users;
+SELECT id, title, status, priority FROM tickets;
+\q
+```
+
+The API still uses its in-memory data store. Creating the database does not yet
+connect the authentication endpoints to PostgreSQL.
 
 ## Development
 
@@ -280,3 +332,255 @@ production build.
 
 This project is licensed under the ISC License.
 
+ -->
+
+ # Express REST API with JWT Authentication
+
+
+## Project overview
+
+The goal of this project is not just creating a CRUD API, but build a backend which is handling basic authentication, authorization relational data models, filtering, pagination, data migrations, tests, and running in containers.
+
+### Goals of this project:
+
+- building and handling REST API 
+- handlig relational databases
+- JWT based authentication - role based authroization
+- Separate business logic from route layer
+- Validating, error handling, filtering, pagination
+- Docker
+
+### Current Status
+
+- ✅ Registration
+- ✅ Login
+- ✅ Access token generation
+- ✅ Protected routes
+- ✅ Refresh token generation
+- ✅ Refresh token stored in an `HttpOnly` cookie
+- ✅ Refresh token verification and rotation
+- 🚧 Logout and session revocation
+
+## Features
+
+- User login/registration
+- Password hashing with bcrypt
+- Short-lived JWT access tokens
+- Refresh tokens stored in `HttpOnly` cookies
+- Server-side refresh session tracking
+- Request logging with Morgan
+- Security headers with Helmet
+- CORS configuration
+- TypeScript support
+
+### Tech stack
+
+| Tech    | Role |
+| -------- | ------- |
+| Node.js  | Backend langugage    |
+| Express 5 | Relational database     |
+| TypeScript    | Access / Refresh token    |
+| JSON Web Token    |     |
+| bcrypt    | Local enviroment   |
+| cookie-parser    | Local enviroment   |
+| helmet    | Local enviroment   |
+| CORS    | Local enviroment   |
+| Morgan    | Local enviroment   |
+| TurboRepo    | Local enviroment   |
+| Docker    | Local enviroment   |
+
+
+
+## Architecture
+
+```text
+apps/api/
+├── src/
+│   ├── config/
+│   │   ├── cors.ts
+│   │   └── env.ts
+│   ├── controllers/
+│   │   └── auth.controller.ts
+│   ├── data/
+│   │   └── index.ts
+│   ├── middlewares/
+│   │   └── auth.middleware.ts
+│   ├── routes/
+│   │   └── auth.route.ts
+│   ├── app.ts
+│   ├── index.ts
+│   └── server.ts
+├── package.json
+└── tsconfig.json
+```
+
+## Getting started
+
+### Rrequirements
+
+```text
+- Node.js 24 or newer
+- npm 11 or newer
+```
+
+### Installation
+ ```bash
+git clone <repository-url>
+cd 06_rest_api_express
+npm install
+```
+
+
+Create this file:
+
+```text
+apps/api/.env.development.local
+```
+
+Add the following variables:
+
+```env
+PORT=3001
+JWT_ACCESS_SECRET=your-long-random-access-secret
+JWT_REFRESH_SECRET=your-long-random-refresh-secret
+DATABASE_URL=postgresql://app_user:local_password@localhost:5432/rest_api
+```
+Generate secure random secrets with:
+
+```bash
+openssl rand -base64 48
+```
+
+Run the command twice and use a different value for each secret.
+
+
+### PostgreSQL database
+
+Start PostgreSQL in Docker:
+
+```bash
+docker compose up -d
+```
+
+For a new database volume, Docker automatically runs these files in order:
+
+```text
+db/init/001_schema.sql
+db/init/002_seed.sql
+```
+### Start in development mode
+
+Start the API in development mode:
+
+```bash
+npm run dev --workspace=api
+```
+
+The server will be available at:
+
+```text
+http://localhost:3001
+```
+
+## API documentation
+
+### API Endpoints
+
+| Method | Endpoint | Authentication | Description |
+|---|---|---|---|
+| `POST` | `/api/v1/auth/register` | No | Register a new user |
+| `POST` | `/api/v1/auth/login` | No | Log in and receive an access token |
+| `POST` | `/api/v1/auth/refresh` | Refresh cookie | Issue a new token pair |
+| `GET` | `/protected-data` | Bearer token | Access protected data |
+## Testing
+
+### Register
+
+#### Request
+
+```http
+POST /api/v1/auth/register
+Content-Type: application/json
+```
+
+```json
+{
+  "username": "example-user",
+  "password": "secure-password"
+}
+```
+
+#### Response
+
+```json
+{
+  "message": "Sikeres regisztráció!"
+}
+```
+
+### Login
+
+#### Request
+
+```http
+POST /api/v1/auth/login
+Content-Type: application/json
+```
+
+```json
+{
+  "username": "example-user",
+  "password": "secure-password"
+}
+```
+
+#### Response
+
+The access token is returned in the response body:
+
+```json
+{
+  "message": "Sikeres bejelentkezés",
+  "accessToken": "<jwt-access-token>"
+}
+```
+
+A seven-day refresh token is also issued as an `HttpOnly` cookie.
+
+### Protected Route
+
+Send the access token in the `Authorization` header:
+
+```http
+GET /protected-data
+Authorization: Bearer <jwt-access-token>
+```
+
+Example response:
+
+```json
+{
+  "message": "Üdv example-user, sikeresen elérted a védett adatokat!",
+  "data": [1, 2, 3, 4, 5]
+}
+```
+## Security
+
+- Passwords are never stored as plain text.
+- Access and refresh tokens use different secrets.
+- Refresh tokens are not exposed to browser JavaScript.
+- Refresh cookies use `HttpOnly` and `SameSite=Lax`.
+- Production cookies use the `Secure` attribute.
+- Refresh sessions can be revoked on the server.
+- Helmet adds common HTTP security headers.
+
+## Roadmap
+
+- [ ] Complete refresh token rotation
+- [ ] Add logout and session revocation
+- [ ] Add request validation with Zod
+- [ ] Add a persistent database
+- [ ] Store refresh sessions in Redis or a database
+- [ ] Add rate limiting
+- [ ] Add automated tests
+- [ ] Add centralized error handling
